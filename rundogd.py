@@ -41,22 +41,49 @@ from watchdog.events import FileSystemEventHandler
 version = "0.1"
 
 
-def run(command, process=None):
-    if process:
-        process.terminate()
+class Runner():
+    def __init__(self, command, stdout=None, stderr=None):
+        self.command = command
+        self.stdout = stdout
+        self.stderr = stderr
+        self.outfp = None
+        self.errfp = None
+        self.process = None
+        self.restart()
 
-    print "$", " ".join(command)
-    try:
-        return subprocess.Popen(command)
-    except OSError as e:
-        print "Failed to start process:", e
-        sys.exit(1)
+    def restart(self):
+        if self.process:
+            self.process.terminate()
+
+        if self.outfp:
+            os.close(self.outfp)
+        if self.errfp:
+            os.close(self.errfp)
+
+        print "$", " ".join(self.command)
+        try:
+            if self.stdout:
+                self.outfp = os.open(
+                    self.stdout,
+                    os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                    0644
+                )
+            if self.stderr:
+                self.errfp = os.open(
+                    self.stderr,
+                    os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                    0644
+                )
+
+            self.process = subprocess.Popen(self.command, stdout=self.outfp, stderr=self.errfp)
+        except OSError as e:
+            print "Failed to start process:", e
+            sys.exit(1)
 
 
 class ChangeHandler(FileSystemEventHandler):
-    def __init__(self, command, process, **kwargs):
-        self.command = command
-        self.process = process
+    def __init__(self, runner, **kwargs):
+        self.runner = runner
         self.timer = None
 
         FileSystemEventHandler.__init__(self, **kwargs)
@@ -64,14 +91,14 @@ class ChangeHandler(FileSystemEventHandler):
     def on_any_event(self, event):
         def restart():
             print "---------- Restarting... ----------"
-            self.process = run(self.command, self.process)
+            self.runner.restart()
 
         ## Restart after 100ms has passed
         # This ensures all file events have completed
         # by the time the command is restarted.
         if ((not self.timer) or
             (not self.timer.is_alive())):
-            self.timer = Timer(0.1, restart)
+            self.timer = Timer(1, restart)
             self.timer.start()
 
 
@@ -87,6 +114,16 @@ if __name__ == "__main__":
         action="append",
         nargs=1,
         help="recursively watch for file changes in this path"
+    )
+    parser.add_argument(
+        "--stdout",
+        nargs=1,
+        help="redirect stdout to this file"
+    )
+    parser.add_argument(
+        "--stderr",
+        nargs=1,
+        help="redirect stderr to this file"
     )
     parser.add_argument(
         "--version",
@@ -121,12 +158,20 @@ if __name__ == "__main__":
             print path, "is not a directory."
             sys.exit(1)
 
+    # Get stdout and stderr arguments
+    stdout = None
+    stderr = None
+    if args[0].stdout:
+        stdout = args[0].stdout[0]
+    if args[0].stderr:
+        stderr = args[0].stderr[0]
+
     # Get command argument, and start the process
     command = args[1]
-    process = run(command)
+    runner = Runner(command, stdout, stderr)
 
     # Start the watchdog observer thread
-    event_handler = ChangeHandler(command, process)
+    event_handler = ChangeHandler(runner)
     observer = Observer()
     for path in paths:
         observer.schedule(event_handler, path=path, recursive=True)

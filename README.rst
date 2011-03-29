@@ -36,6 +36,8 @@ Usage
     optional arguments:
       -h, --help            show this help message and exit
       -p PATH, --path PATH  recursively watch for file changes in this path
+      --stdout STDOUT       redirect stdout to this file
+      --stderr STDERR       redirect stderr to this file
       --version             show program's version number and exit
 
 ``rundogd`` takes one optional argument (``-p``) to specify the path that it
