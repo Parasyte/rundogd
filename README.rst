@@ -36,6 +36,9 @@ Usage
     optional arguments:
       -h, --help            show this help message and exit
       -p PATH, --path PATH  recursively watch for file changes in this path
+      -i IGNORE, --ignore IGNORE
+                            ignore files matching the given pattern
+      -o ONLY, --only ONLY  only watch files matching the given pattern
       --stdout STDOUT       redirect stdout to this file
       --stderr STDERR       redirect stderr to this file
       --version             show program's version number and exit
@@ -44,6 +47,9 @@ Usage
 will watch. Use ``-p`` multiple times to watch a list of paths. If omitted, the
 path will be inferred from the command, or it will use the current working
 directory.
+
+The ``-i`` switch can be used to ignore file patterns. And ``-o`` is used to
+watch only specific file patterns.
 
 Examples
 --------
@@ -61,6 +67,15 @@ in the directory ``src/data``.
 
 Starts ``python src/main.py`` and restarts it every time any files are changed
 in the directories ``src/data`` or ``src/tmp``.
+
+::
+
+    ./rundogd -p src/data -p src/tmp -i '*.pyc' python src/main.py
+
+Starts ``python src/main.py`` and restarts it every time any files are changed
+in the directories ``src/data`` or ``src/tmp``, except for *.pyc files, which
+are automatically regenerated when starting Python after the source files have
+changed. This can be used to prevent a "double startup" when working on Python.
 
 ::
 

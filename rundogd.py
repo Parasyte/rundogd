@@ -36,7 +36,7 @@ from argparse import ArgumentParser
 from threading import Timer
 
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import PatternMatchingEventHandler
 
 version = "0.1"
 
@@ -81,12 +81,12 @@ class Runner():
             sys.exit(1)
 
 
-class ChangeHandler(FileSystemEventHandler):
+class ChangeHandler(PatternMatchingEventHandler):
     def __init__(self, runner, **kwargs):
         self.runner = runner
         self.timer = None
 
-        FileSystemEventHandler.__init__(self, **kwargs)
+        PatternMatchingEventHandler.__init__(self, **kwargs)
 
     def on_any_event(self, event):
         def restart():
@@ -98,7 +98,7 @@ class ChangeHandler(FileSystemEventHandler):
         # by the time the command is restarted.
         if ((not self.timer) or
             (not self.timer.is_alive())):
-            self.timer = Timer(1, restart)
+            self.timer = Timer(0.1, restart)
             self.timer.start()
 
 
@@ -114,6 +114,18 @@ if __name__ == "__main__":
         action="append",
         nargs=1,
         help="recursively watch for file changes in this path"
+    )
+    parser.add_argument(
+        "-i", "--ignore",
+        action="append",
+        nargs=1,
+        help="ignore files matching the given pattern"
+    )
+    parser.add_argument(
+        "-o", "--only",
+        action="append",
+        nargs=1,
+        help="only watch files matching the given pattern"
     )
     parser.add_argument(
         "--stdout",
@@ -166,12 +178,26 @@ if __name__ == "__main__":
     if args[0].stderr:
         stderr = args[0].stderr[0]
 
+    # Get ingore arguments
+    ignore = None
+    if args[0].ignore:
+        ignore = set(map(lambda x: x[0], args[0].ignore))
+        if not ignore:
+            ignore = None
+
+    # Get only arguments
+    only = None
+    if args[0].only:
+        only = set(map(lambda x: x[0], args[0].only))
+        if not only:
+            only = None
+
     # Get command argument, and start the process
     command = args[1]
     runner = Runner(command, stdout, stderr)
 
     # Start the watchdog observer thread
-    event_handler = ChangeHandler(runner)
+    event_handler = ChangeHandler(runner, patterns=only, ignore_patterns=ignore)
     observer = Observer()
     for path in paths:
         observer.schedule(event_handler, path=path, recursive=True)
