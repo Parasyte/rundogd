@@ -73,7 +73,7 @@ in the directories ``src/data`` or ``src/tmp``.
     ./rundogd -p src/data -p src/tmp -i '*.pyc' python src/main.py
 
 Starts ``python src/main.py`` and restarts it every time any files are changed
-in the directories ``src/data`` or ``src/tmp``, except for *.pyc files, which
+in the directories ``src/data`` or ``src/tmp``, except for \*.pyc files, which
 are automatically regenerated when starting Python after the source files have
 changed. This can be used to prevent a "double startup" when working on Python.
 
