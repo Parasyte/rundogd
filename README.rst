@@ -39,6 +39,7 @@ Usage
       -i IGNORE, --ignore IGNORE
                             ignore files matching the given pattern
       -o ONLY, --only ONLY  only watch files matching the given pattern
+      -w WAIT, --wait WAIT  a delay time (in seconds) to wait between file changes
       --stdout STDOUT       redirect stdout to this file
       --stderr STDERR       redirect stderr to this file
       --version             show program's version number and exit

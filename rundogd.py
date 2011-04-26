@@ -82,8 +82,9 @@ class Runner():
 
 
 class ChangeHandler(PatternMatchingEventHandler):
-    def __init__(self, runner, **kwargs):
+    def __init__(self, runner, wait, **kwargs):
         self.runner = runner
+        self.wait = wait
         self.timer = None
 
         PatternMatchingEventHandler.__init__(self, **kwargs)
@@ -93,13 +94,14 @@ class ChangeHandler(PatternMatchingEventHandler):
             print "---------- Restarting... ----------"
             self.runner.restart()
 
-        ## Restart after 100ms has passed
+        ## Restart after wait period has passed
         # This ensures all file events have completed
         # by the time the command is restarted.
-        if ((not self.timer) or
-            (not self.timer.is_alive())):
-            self.timer = Timer(0.1, restart)
-            self.timer.start()
+        if self.timer and self.timer.is_alive():
+            self.timer.cancel()
+
+        self.timer = Timer(self.wait, restart)
+        self.timer.start()
 
 
 if __name__ == "__main__":
@@ -126,6 +128,13 @@ if __name__ == "__main__":
         action="append",
         nargs=1,
         help="only watch files matching the given pattern"
+    )
+    parser.add_argument(
+        "-w", "--wait",
+        type=float,
+        nargs=1,
+        default=0.5,
+        help="a delay time (in seconds) to wait between file changes"
     )
     parser.add_argument(
         "--stdout",
@@ -192,12 +201,17 @@ if __name__ == "__main__":
         if not only:
             only = None
 
+    # Get wait argument
+    wait = args[0].wait
+    if isinstance(wait, list):
+        wait = wait[0]
+
     # Get command argument, and start the process
     command = args[1]
     runner = Runner(command, stdout, stderr)
 
     # Start the watchdog observer thread
-    event_handler = ChangeHandler(runner, patterns=only, ignore_patterns=ignore)
+    event_handler = ChangeHandler(runner, wait, patterns=only, ignore_patterns=ignore)
     observer = Observer()
     for path in paths:
         observer.schedule(event_handler, path=path, recursive=True)
