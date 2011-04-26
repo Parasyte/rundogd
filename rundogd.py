@@ -51,9 +51,14 @@ class Runner():
         self.process = None
         self.restart()
 
-    def restart(self):
+    def terminate(self):
         if self.process:
             self.process.terminate()
+            self.process.wait()
+            self.process = None
+
+    def restart(self):
+        self.terminate()
 
         if self.outfp:
             os.close(self.outfp)
@@ -225,5 +230,6 @@ if __name__ == "__main__":
         pass
 
     print "\nrundogd is shutting down..."
+    runner.terminate()
     observer.stop()
     observer.join()
