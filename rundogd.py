@@ -51,10 +51,22 @@ class Runner():
         self.process = None
         self.restart()
 
+    def poll(self):
+        if self.process:
+            try:
+                self.process.poll()
+                return self.process.returncode
+            except OSError:
+                self.process = None
+        return None
+
     def terminate(self):
         if self.process:
-            self.process.terminate()
-            self.process.wait()
+            try:
+                self.process.terminate()
+                self.process.wait()
+            except OSError:
+                pass
             self.process = None
 
     def restart(self):
@@ -121,6 +133,11 @@ if __name__ == "__main__":
         action="append",
         nargs=1,
         help="recursively watch for file changes in this path"
+    )
+    parser.add_argument(
+        "-r", "--persist",
+        action="store_true",
+        help="continue watching files after the command exits"
     )
     parser.add_argument(
         "-i", "--ignore",
@@ -225,7 +242,9 @@ if __name__ == "__main__":
     # Enter Rip Van Winkle mode
     try:
         while True:
-            time.sleep(3600)
+            time.sleep(1)
+            if (not args[0].persist) and (runner.poll() is not None):
+                break
     except KeyboardInterrupt:
         pass
 

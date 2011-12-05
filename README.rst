@@ -36,6 +36,7 @@ Usage
     optional arguments:
       -h, --help            show this help message and exit
       -p PATH, --path PATH  recursively watch for file changes in this path
+      -r, --persist         continue watching files after the command exits
       -i IGNORE, --ignore IGNORE
                             ignore files matching the given pattern
       -o ONLY, --only ONLY  only watch files matching the given pattern
@@ -87,10 +88,11 @@ in the directory ``/home/me/src``.
 
 ::
 
-    ./rundogd ls -al
+    ./rundogd -r ls -al
 
 Starts ``ls -al`` and restarts it every time any files are changed in the
-current working directory.
+current working directory. Uses the ``persist`` option to continue watching for
+file changes even after ``ls`` exits.
 
 .. _Python: http://www.python.org/
 .. _watchdog: http://pypi.python.org/pypi/watchdog
