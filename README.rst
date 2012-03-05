@@ -14,7 +14,7 @@ these events.
 Getting ``rundogd``
 -------------------
 
-``rundogd`` source code is hosted on github::
+``rundogd`` source code is hosted on bitbucket::
 
     git clone https://bitbucket.org/parasyte/rundogd.git
 
