@@ -96,5 +96,33 @@ Starts ``ls -al`` and restarts it every time any files are changed in the
 current working directory. Uses the ``persist`` option to continue watching for
 file changes even after ``ls`` exits.
 
+Recipes
+-------
+
+Git repos are updated often, even when doing a ``git status``. This will help:
+
+::
+
+    -i '*/.git/*'
+
+Python developers should ignore the files that Python compiles automatically:
+
+::
+
+    -i '*.pyc' -i '*.pyo'
+
+When developing on Mac OS X on non-HFS file systems, the following patterns will
+ignore the special files that get created and updated automatically:
+
+::
+
+    -i '.DS_Store' -i '.Trashes' -i '._*'
+
+Similar special files on Windows:
+
+::
+
+    -i 'Thumbs.db' -i 'desktop.ini'
+
 .. _Python: http://www.python.org/
 .. _watchdog: http://pypi.python.org/pypi/watchdog
