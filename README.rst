@@ -16,7 +16,7 @@ Getting ``rundogd``
 
 ``rundogd`` source code is hosted on github::
 
-    git clone git://github.com/Parasyte/rundogd.git
+    git clone https://bitbucket.org/parasyte/rundogd.git
 
 Dependencies
 ~~~~~~~~~~~~
