@@ -99,14 +99,21 @@ class Runner():
 
 
 class ChangeHandler(PatternMatchingEventHandler):
-    def __init__(self, runner, wait, **kwargs):
+    def __init__(self, runner, wait, verbosity, **kwargs):
         self.runner = runner
         self.wait = wait
+        self.verbosity = verbosity
         self.timer = None
 
         PatternMatchingEventHandler.__init__(self, **kwargs)
 
     def on_any_event(self, event):
+        if self.verbosity:
+            if hasattr(event, 'src_path'):
+                print '[RUNDOGDEBUG] event src_path:', event.src_path
+            if hasattr(event, 'dest_path'):
+                print '[RUNDOGDEBUG] event dest_path:', event.dest_path
+
         def restart():
             print "---------- Restarting... ----------"
             self.runner.restart()
@@ -146,6 +153,11 @@ if __name__ == "__main__":
         help="ignore files matching the given pattern"
     )
     parser.add_argument(
+        "-d", "--ignore-dir",
+        action="store_true",
+        help="ignore changes to directories"
+    )
+    parser.add_argument(
         "-o", "--only",
         action="append",
         nargs=1,
@@ -169,6 +181,11 @@ if __name__ == "__main__":
         help="redirect stderr to this file"
     )
     parser.add_argument(
+        "-v", "--verbose",
+        action="count",
+        help="enable verbose output; use more v's for more verbosity"
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version="%(prog)s " + version
@@ -179,14 +196,14 @@ if __name__ == "__main__":
     if len(args[1]) == 0:
         parser.error("Missing command.")
 
-    # Get path arguments
+    # Get `path` arguments
     if args[0].path:
         paths = map(lambda x: x[0], args[0].path)
     else:
         # Or infer it from the command
         paths = [ os.path.expanduser(os.path.dirname(args[1][0])) ]
 
-    ## Validate path arguments
+    ## Validate `path` arguments
     # Replace empty path with current working directory
     for i, path in enumerate(paths):
         if not path:
@@ -209,21 +226,21 @@ if __name__ == "__main__":
     if args[0].stderr:
         stderr = args[0].stderr[0]
 
-    # Get ingore arguments
+    # Get `ignore` arguments
     ignore = None
     if args[0].ignore:
         ignore = set(map(lambda x: x[0], args[0].ignore))
         if not ignore:
             ignore = None
 
-    # Get only arguments
+    # Get `only` arguments
     only = None
     if args[0].only:
         only = set(map(lambda x: x[0], args[0].only))
         if not only:
             only = None
 
-    # Get wait argument
+    # Get `wait` argument
     wait = args[0].wait
     if isinstance(wait, list):
         wait = wait[0]
@@ -233,7 +250,14 @@ if __name__ == "__main__":
     runner = Runner(command, stdout, stderr)
 
     # Start the watchdog observer thread
-    event_handler = ChangeHandler(runner, wait, patterns=only, ignore_patterns=ignore)
+    event_handler = ChangeHandler(
+        runner,
+        wait,
+        args[0].verbose,
+        patterns=only,
+        ignore_patterns=ignore,
+        ignore_directories=args[0].ignore_dir
+    )
     observer = Observer()
     for path in paths:
         observer.schedule(event_handler, path=path, recursive=True)

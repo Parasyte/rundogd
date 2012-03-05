@@ -39,10 +39,12 @@ Usage
       -r, --persist         continue watching files after the command exits
       -i IGNORE, --ignore IGNORE
                             ignore files matching the given pattern
+      -d, --ignore-dir      ignore changes to directories
       -o ONLY, --only ONLY  only watch files matching the given pattern
       -w WAIT, --wait WAIT  a delay time (in seconds) to wait between file changes
       --stdout STDOUT       redirect stdout to this file
       --stderr STDERR       redirect stderr to this file
+      -v, --verbose         enable verbose output; use more v's for more verbosity
       --version             show program's version number and exit
 
 ``rundogd`` takes one optional argument (``-p``) to specify the path that it
