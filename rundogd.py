@@ -27,12 +27,12 @@
 # those of the authors and should not be interpreted as representing official
 # policies, either expressed or implied, of Jason Oster.
 
+import argparse
 import os
 import subprocess
 import sys
 import time
 
-from argparse import ArgumentParser
 from threading import Timer
 
 from watchdog.observers import Observer
@@ -130,7 +130,7 @@ class ChangeHandler(PatternMatchingEventHandler):
 
 if __name__ == "__main__":
     # Parse command line arguments
-    parser = ArgumentParser(
+    parser = argparse.ArgumentParser(
         description="Filesystem watcher-restarter daemon.",
         usage="%(prog)s [options] command",
         prog="rundogd"
@@ -190,18 +190,21 @@ if __name__ == "__main__":
         action="version",
         version="%(prog)s " + version
     )
-    args = parser.parse_known_args()
+    parser.add_argument("command")
+    parser.add_argument("args", nargs=argparse.REMAINDER)
+
+    args = parser.parse_args()
 
     # Require a command
-    if len(args[1]) == 0:
+    if args.command is None:
         parser.error("Missing command.")
 
     # Get `path` arguments
-    if args[0].path:
-        paths = map(lambda x: x[0], args[0].path)
+    if args.path:
+        paths = map(lambda x: x[0], args.path)
     else:
         # Or infer it from the command
-        paths = [ os.path.expanduser(os.path.dirname(args[1][0])) ]
+        paths = [ os.path.expanduser(os.path.dirname(args.command)) ]
 
     ## Validate `path` arguments
     # Replace empty path with current working directory
@@ -221,42 +224,41 @@ if __name__ == "__main__":
     # Get stdout and stderr arguments
     stdout = None
     stderr = None
-    if args[0].stdout:
-        stdout = args[0].stdout[0]
-    if args[0].stderr:
-        stderr = args[0].stderr[0]
+    if args.stdout:
+        stdout = args.stdout[0]
+    if args.stderr:
+        stderr = args.stderr[0]
 
     # Get `ignore` arguments
     ignore = None
-    if args[0].ignore:
-        ignore = set(map(lambda x: x[0], args[0].ignore))
+    if args.ignore:
+        ignore = set(map(lambda x: x[0], args.ignore))
         if not ignore:
             ignore = None
 
     # Get `only` arguments
     only = None
-    if args[0].only:
-        only = set(map(lambda x: x[0], args[0].only))
+    if args.only:
+        only = set(map(lambda x: x[0], args.only))
         if not only:
             only = None
 
     # Get `wait` argument
-    wait = args[0].wait
+    wait = args.wait
     if isinstance(wait, list):
         wait = wait[0]
 
     # Get command argument, and start the process
-    command = args[1]
-    runner = Runner(command, stdout, stderr)
+    runner = Runner([ args.command ] + args.args, stdout, stderr)
 
     # Start the watchdog observer thread
     event_handler = ChangeHandler(
         runner,
         wait,
-        args[0].verbose,
+        args.verbose,
         patterns=only,
         ignore_patterns=ignore,
-        ignore_directories=args[0].ignore_dir
+        ignore_directories=args.ignore_dir
     )
     observer = Observer()
     for path in paths:
@@ -267,7 +269,7 @@ if __name__ == "__main__":
     try:
         while True:
             time.sleep(1)
-            if (not args[0].persist) and (runner.poll() is not None):
+            if (not args.persist) and (runner.poll() is not None):
                 break
     except KeyboardInterrupt:
         pass
