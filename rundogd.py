@@ -92,7 +92,11 @@ class Runner():
                     0644
                 )
 
-            self.process = subprocess.Popen(self.command, stdout=self.outfp, stderr=self.errfp)
+            self.process = subprocess.Popen(
+                self.command,
+                stdout=self.outfp,
+                stderr=self.errfp
+            )
         except OSError as e:
             print "Failed to start process:", e
             sys.exit(1)
