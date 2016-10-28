@@ -123,7 +123,7 @@ class ChangeHandler(PatternMatchingEventHandler):
             print('---------- Restarting... ----------')
             self.runner.restart()
 
-        ## Restart after wait period has passed
+        # Restart after wait period has passed
         # This ensures all file events have completed
         # by the time the command is restarted.
         if self.timer and self.timer.is_alive():
@@ -152,15 +152,15 @@ def main():
         help='continue watching files after the command exits'
     )
     parser.add_argument(
-        '-i', '--ignore',
+        '-i', '--exclude',
         action='append',
         nargs=1,
-        help='ignore files matching the given pattern'
+        help='exclude files matching the given pattern'
     )
     parser.add_argument(
-        '-d', '--ignore-dir',
+        '-d', '--exclude-dir',
         action='store_true',
-        help='ignore changes to directories'
+        help='exclude changes to directories'
     )
     parser.add_argument(
         '-o', '--only',
@@ -211,7 +211,7 @@ def main():
         # Or infer it from the command
         paths = [ os.path.expanduser(os.path.dirname(args.command)) ]
 
-    ## Validate `path` arguments
+    # Validate `path` arguments
     # Replace empty path with current working directory
     for i, path in enumerate(paths):
         if not path:
@@ -234,12 +234,12 @@ def main():
     if args.stderr:
         stderr = args.stderr[0]
 
-    # Get `ignore` arguments
-    ignore = None
-    if args.ignore:
-        ignore = set(map(lambda x: x[0], args.ignore))
-        if not ignore:
-            ignore = None
+    # Get `exclude` arguments
+    exclude = None
+    if args.exclude:
+        exclude = set(map(lambda x: x[0], args.exclude))
+        if not exclude:
+            exclude = None
 
     # Get `only` arguments
     only = None
@@ -262,8 +262,8 @@ def main():
         wait,
         args.verbose,
         patterns=only,
-        ignore_patterns=ignore,
-        ignore_directories=args.ignore_dir
+        ignore_patterns=exclude,
+        ignore_directories=args.exclude_dir
     )
     observer = Observer()
     for path in paths:
