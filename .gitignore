@@ -1,0 +1,23 @@
+## Virtualenv
+.env/
+
+## OSX junk
+.DS_Store
+.Trashes
+._*
+
+## Python junk
+*.pyc
+*.pyo
+__pycache__
+build/
+dist/
+*.egg-info/
+
+## Temporary files
+*.tmp
+*~
+
+## VIM
+*.swp
+*.swo

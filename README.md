@@ -14,8 +14,8 @@ Pronounced "run dogged".
 
 ### Dependencies
 
-* [Python](http://www.python.org/) 2.6+
-* [watchdog](http://pypi.python.org/pypi/watchdog) 0.5.4+
+* [Python](http://www.python.org/) 2.7+
+* [watchdog](http://pypi.python.org/pypi/watchdog) 0.8.3+
 
 ## Usage
 
