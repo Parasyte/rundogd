@@ -9,6 +9,9 @@ setup(
     author='Jay Oster',
     author_email='jay@kodewerx.org',
     url='https://github.com/parasyte/rundogd',
-    scripts=[ 'rundogd' ],
+    py_modules=[ 'rundogd' ],
+    entry_points={
+        'console_scripts': [ 'rundogd = rundogd:main' ],
+    },
     install_requires=[ 'watchdog (==0.8.3)' ],
 )
