@@ -173,18 +173,15 @@ def main():
     parser.add_argument(
         '-w', '--wait',
         type=float,
-        nargs=1,
         default=0.5,
         help='a delay time (in seconds) to wait between file changes'
     )
     parser.add_argument(
         '--stdout',
-        nargs=1,
         help='redirect stdout to this file'
     )
     parser.add_argument(
         '--stderr',
-        nargs=1,
         help='redirect stderr to this file'
     )
     parser.add_argument(
@@ -228,14 +225,6 @@ def main():
             print(path, 'is not a directory.')
             sys.exit(1)
 
-    # Get stdout and stderr arguments
-    stdout = None
-    stderr = None
-    if args.stdout:
-        stdout = args.stdout[0]
-    if args.stderr:
-        stderr = args.stderr[0]
-
     # Get `exclude` arguments
     exclude = None
     if args.exclude:
@@ -250,18 +239,13 @@ def main():
         if not only:
             only = None
 
-    # Get `wait` argument
-    wait = args.wait
-    if isinstance(wait, list):
-        wait = wait[0]
-
     # Get command argument, and start the process
-    runner = Runner([ args.command ] + args.args, stdout, stderr)
+    runner = Runner([ args.command ] + args.args, args.stdout, args.stderr)
 
     # Start the watchdog observer thread
     event_handler = ChangeHandler(
         runner,
-        wait,
+        args.wait,
         args.verbose,
         patterns=only,
         ignore_patterns=exclude,
