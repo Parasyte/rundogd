@@ -44,7 +44,7 @@ from watchdog.events import PatternMatchingEventHandler
 version = pkg_resources.require('rundogd')[0].version
 
 
-class Runner():
+class Runner(object):
     def __init__(self, command, stdout=None, stderr=None):
         self.command = command
         self.stdout = stdout
