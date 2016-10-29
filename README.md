@@ -43,31 +43,41 @@ The `-e` switch can be used to exclude file patterns. And `-o` is used to watch 
 
 ## Examples
 
-    $ rundogd -p src/data python src/main.py
+```bash
+$ rundogd -p src/data python src/main.py
+```
 
 Starts `python src/main.py` and restarts it every time any files are changed in the directory `src/data`.
 
 ----
 
-    $ rundogd -p src/data -p src/tmp python src/main.py
+```bash
+$ rundogd -p src/data -p src/tmp python src/main.py
+```
 
 Starts `python src/main.py` and restarts it every time any files are changed in the directories `src/data` or `src/tmp`.
 
 ----
 
-    $ rundogd -p src/data -p src/tmp -e '*.pyc' python src/main.py
+```bash
+$ rundogd -p src/data -p src/tmp -e '*.pyc' python src/main.py
+```
 
 Starts `python src/main.py` and restarts it every time any files are changed in the directories `src/data` or `src/tmp`, except for \*.pyc files, which are automatically regenerated when starting Python after the source files have changed. This can be used to prevent a "double startup" when working on Python.
 
 ----
 
-    $ rundogd /home/me/src/program
+```bash
+$ rundogd /home/me/src/program
+```
 
 Starts `/home/me/src/program` and restarts it every time any files are changed in the directory `/home/me/src`.
 
 ----
 
-    $ rundogd -r ls -al
+```bash
+$ rundogd -r ls -al
+```
 
 Starts `ls -al` and restarts it every time any files are changed in the current working directory. Uses the `persist` option to continue watching for file changes even after `ls` exits.
 
@@ -75,22 +85,30 @@ Starts `ls -al` and restarts it every time any files are changed in the current 
 
 Git repos are updated often, even when doing a `git status`. This will help:
 
-    -e '*/.git/*'
+```
+-e '*/.git' -e '*/.git/*'
+```
 
 ----
 
 Python developers should exclude the files that Python compiles automatically:
 
-    -e '*.pyc' -e '*.pyo'
+```
+-e '*.pyc' -e '*.pyo'
+```
 
 ----
 
 When developing on Mac OS X on non-HFS file systems, the following patterns will exclude the special files that get created and updated automatically:
 
-    -e '.DS_Store' -e '.Trashes' -e '._*'
+```
+-e '.DS_Store' -e '.Trashes' -e '._*'
+```
 
 ----
 
 Similar special files on Windows:
 
-    -e 'Thumbs.db' -e 'desktop.ini'
+```
+-e 'Thumbs.db' -e 'desktop.ini'
+```
