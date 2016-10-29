@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright 2011-2016 Jason Oster. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
