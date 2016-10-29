@@ -154,7 +154,7 @@ def main():
         help='continue watching files after the command exits'
     )
     parser.add_argument(
-        '-i', '--exclude',
+        '-e', '--exclude',
         action='append',
         nargs=1,
         help='exclude files matching the given pattern'
